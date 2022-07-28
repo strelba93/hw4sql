@@ -12,21 +12,19 @@ select a.name, avg(t.duration)  from albums a
 left join tracks t on a.id = t.album_id
 group by a.name;
 
-select s.name from albums a
+select distinct s.name from albums a
 left join singers_albums sa on a.id = sa.albums_id 
 left join singers s on sa.singers_id = s.id
-where not release_year >= '2020-01-01' and release_year <= '2020-12-31'
-group by s.name
-having count(*) >= 0;
+where a.release_year not between '2020-01-01' and '2020-12-31';
 
-SELECT d.name FROM digest d
+
+select distinct d.name FROM digest d
 left join digest_tracks dt on d.id = dt.digest_id 
 left join tracks t on dt.tracks_id = t.id 
 left join albums a on t.album_id = a.id 
 left join singers_albums sa on sa.albums_id = a.id 
 left join singers s on sa.singers_id = s.id
 WHERE s.name LIKE '%Enter Shikari%'
-GROUP BY d.name;
 
 select a.name from albums a 
 left join singers_albums sa on a.id = sa.albums_id 
@@ -40,20 +38,21 @@ left join digest_tracks dt on t.id = dt.tracks_id
 group by t.name 
 having count(dt.digest_id) = 0;  
 
-select s.name from singers s 
+select distinct s.name from singers s 
 left join singers_albums sa on s.id = sa.singers_id 
 left join albums a on a.id = sa.albums_id 
 left join tracks t on a.id = t.album_id  
-where t.duration = (select min(duration) from tracks t2)   
-group by s.name;
+where t.duration = (select min(duration) from tracks t2); 
 
 
-select a.name from albums a
-join tracks t on a.id = t.album_id 
-group by a.name
-having count(album_id) = (select min(album_id) from tracks t2);
-
-
+select a.name, count(t.name) from albums a
+join tracks t on a.id = t.album_id
+group by a."name" 
+having count(t.name) = (select count(t2.name) from albums a2 
+join tracks t2 on a2.id = t2.album_id
+group by a2.name
+order by count(t2.name)
+limit 1)
 
 
 
